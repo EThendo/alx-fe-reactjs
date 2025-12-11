@@ -1,80 +1,57 @@
 import { useState } from "react";
-import fetchUserData from "../services/githubService";
 
-export default function Search() {
-  const [query, setQuery] = useState("");
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function SearchBar({ onAdvancedSearch }) {
+  const [username, setUsername] = useState("");
+  const [location, setLocation] = useState("");
+  const [minRepos, setMinRepos] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!query.trim()) return;
-
-    setLoading(true);
-    setError("");
-    setUser(null);
-
-    try {
-      const data = await fetchUserData(query);
-      setUser(data);
-    } catch (err) {
-      setError("Looks like we can't find the user");
-    } finally {
-      setLoading(false);
-    }
+    onAdvancedSearch({
+      username: username.trim(),
+      location: location.trim(),
+      minRepos: minRepos.trim(),
+    });
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "40px" }}>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter GitHub username..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{
-            padding: "10px",
-            width: "250px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            padding: "10px 20px",
-            marginLeft: "10px",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Search
-        </button>
-      </form>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white shadow-md rounded-xl p-6 space-y-4 max-w-xl mx-auto"
+    >
+      <h2 className="text-2xl font-bold text-gray-700">Advanced Search</h2>
 
-      {/* Loading State */}
-      {loading && <p>Loading...</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className="w-full border p-2 rounded-md"
+      />
 
-      {/* Error State */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <input
+        type="text"
+        placeholder="Location (e.g. South Africa)"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        className="w-full border p-2 rounded-md"
+      />
 
-      {/* Success State */}
-      {user && (
-        <div style={{ marginTop: "20px" }}>
-          <img
-            src={user.avatar_url}
-            alt="avatar"
-            width="100"
-            style={{ borderRadius: "50%" }}
-          />
-          <h3>{user.name || user.login}</h3>
-          <a href={user.html_url} target="_blank" rel="noreferrer">
-            View GitHub Profile
-          </a>
-        </div>
-      )}
-    </div>
+      <input
+        type="number"
+        placeholder="Minimum Repositories"
+        value={minRepos}
+        onChange={(e) => setMinRepos(e.target.value)}
+        className="w-full border p-2 rounded-md"
+      />
+
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+      >
+        Search
+      </button>
+    </form>
   );
 }

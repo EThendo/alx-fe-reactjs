@@ -1,30 +1,32 @@
 import { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import UserList from "./components/UserList";
-import { getUser } from "./services/githubAPI";
+import { advancedUserSearch } from "./services/githubAPI";
 
 export default function App() {
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  const handleSearch = async (query) => {
+  const handleAdvancedSearch = async (filters) => {
     try {
-      const userData = await getUser(query);
-      setUsers([userData]); // store single user in array
-      setError(null);
+      const results = await advancedUserSearch(filters);
+      setUsers(results);
+      setError(results.length === 0 ? "No users found." : "");
     } catch (err) {
-      setError("User not found");
+      setError("Error fetching users.");
       setUsers([]);
     }
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>GitHub User Search</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-center">GitHub User Search</h1>
 
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onAdvancedSearch={handleAdvancedSearch} />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
+        <p className="text-center text-red-500 font-semibold">{error}</p>
+      )}
 
       <UserList users={users} />
     </div>
